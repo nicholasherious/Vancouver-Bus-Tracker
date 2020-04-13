@@ -33,17 +33,26 @@ function useBus(query) {
         });
         const json = await response.json();
 
+        const [desData] = json
+        const { RouteNo, Direction, Schedules } = desData
+        const [{Destination}, {ExpectedLeaveTime}, {ScheduleStatus}] = Schedules
+
+        // Destructure above
+        // console.log(RouteNo, Direction, Destination, ExpectedLeaveTime, ScheduleStatus)
+        // console.log(json)
+
         setResults({
-          route: json[0].RouteNo,
-          dest: json[0].Schedules[0].Destination,
-          minutes: json[0].Schedules[0].ExpectedLeaveTime,
-          direction: json[0].Direction,
-          status: json[0].Schedules[0].ScheduleStatus
+          RouteNo,
+          Direction,
+          Schedules,
+          Destination,
+          ExpectedLeaveTime,
+          ScheduleStatus
         });
 
-        console.log(json);
+      
 
-        setSchedules(json[0].Schedules);
+        setSchedules(Schedules);
         // console.log(schedules)
 
         // setSchedules({
@@ -132,19 +141,19 @@ export default function App() {
               {error}
               <div className="row">
                 <div className="col">
-                  Next Bus <h4>{results.minutes}</h4>
+                  Next Bus <h4>{results.ExpectedLeaveTime}</h4>
                 </div>
                 <div className="col">
-                  Route: <h4>{results.route}</h4>
+                  Route: <h4>{results.RouteNo}</h4>
                 </div>
               </div>
             </div>
-            <li className="list-group-item">Dest: {results.dest}</li>
+            <li className="list-group-item">Dest: {results.Destination}</li>
             <li className="list-group-item">
               <BusTimes schedules={schedules} />
             </li>
-            <li className="list-group-item">Direction: {results.direction}</li>
-            <li className="list-group-item">Status: {!results.status ? null : "On Time"}</li> 
+            <li className="list-group-item">Direction: {results.Direction}</li>
+            <li className="list-group-item">Status: {!results.ScheduleStatus ? null : "On Time"}</li> 
           </ul>
           <div>
             <button type="button" className="btn btn-link">
@@ -157,7 +166,7 @@ export default function App() {
               {saveRoutes.map(route => (
                 <li>{route}</li>
               ))}
-              {console.log(saveRoutes)}
+             
             </div>
           </div>
         </div>
