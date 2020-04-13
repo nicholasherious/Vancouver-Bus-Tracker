@@ -1,15 +1,8 @@
-import React, { useState, useEffect } from 'react';
-import styled from 'styled-components';
+import React, { useState, useEffect, useRef } from 'react';
 import bus from './bus.jpg';
 import { SaveRoutes } from './SaveRoutes';
 import { BusTimes } from './BusTimes';
-
-const Wrapper = styled.section`
-  padding: 0.5em;
-  width: 375px;
-  margin: auto;
-  background: powderblue;
-`;
+import './App.css'
 
 function useBus(query) {
   const [results, setResults] = useState([]);
@@ -17,10 +10,7 @@ function useBus(query) {
   const [schedules, setSchedules] = useState([]);
   const [loading, setLoading] = useState(false);
   
-
   useEffect(() => {
-    // console.log('useEffect');
-    // console.log({ query });
     async function fetchData() {
       try {
         setLoading(true);
@@ -36,33 +26,22 @@ function useBus(query) {
         const [desData] = json
         const { RouteNo, Direction, Schedules } = desData
         const [{Destination}, {ExpectedLeaveTime}, {ScheduleStatus}] = Schedules
-
+        const [newTime] = ExpectedLeaveTime.split(' ', 1);
+        console.log(newTime);
+        
+        
         // Destructure above
-        // console.log(RouteNo, Direction, Destination, ExpectedLeaveTime, ScheduleStatus)
-        // console.log(json)
 
         setResults({
           RouteNo,
           Direction,
           Schedules,
           Destination,
-          ExpectedLeaveTime,
+          newTime,
           ScheduleStatus
         });
 
-      
-
         setSchedules(Schedules);
-        // console.log(schedules)
-
-        // setSchedules({
-        //   time1: json[0].Schedules[0].ExpectedLeaveTime,
-        //   time2: json[0].Schedules,
-        //   time3: null,
-        //   dest: json[0].Schedules[0].Destination,
-        // });
-
-        // console.log(json[0].Schedules);
         setError('');
       } catch {
         console.log('err');
@@ -70,12 +49,14 @@ function useBus(query) {
       } finally {
         setLoading(false);
       }
+      
     }
     if (query.length === 5) {
       fetchData();
     } else {
       setError('');
     }
+    
   }, [query]);
 
   return [results, schedules, error, loading];
@@ -89,16 +70,29 @@ export default function App() {
   const [results, schedules, error, loading] = useBus(query);
   const [saveRoutes, setSaveRoutes] = useState([])
 
+  const inputRef = useRef(null);
+
+
+  useEffect(() => {
+    const handleFocusRef = () => {
+      inputRef.current.focus();
+    }
+    handleFocusRef();
+  }, [])
+
+
+ 
+
   
   function onSaveRoutesHandler(e) {
     e.preventDefault();
     setSaveRoutes(prevState => [...prevState, search]);
   }
-  // console.log({ results });
-  // console.log({schedules});
-  // console.log(schedules)
+
   return (
-    <Wrapper>
+    <div className="container-sm mt-4">
+<div className="row">
+  <div className="col">
       {loading ? (
         <div className="d-flex justify-content-center mx-auto">
           <div className="spinner-border" role="status">
@@ -132,6 +126,8 @@ export default function App() {
                   className="form-control"
                   placeholder="Stop number"
                   aria-describedby="button-addon1"
+                  ref={inputRef}
+                  
                 />
               </div>
             </form>
@@ -141,7 +137,7 @@ export default function App() {
               {error}
               <div className="row">
                 <div className="col">
-                  Next Bus <h4>{results.ExpectedLeaveTime}</h4>
+                  Next Bus <h4>{results.newTime}</h4>
                 </div>
                 <div className="col">
                   Route: <h4>{results.RouteNo}</h4>
@@ -156,7 +152,10 @@ export default function App() {
             <li className="list-group-item">Status: {!results.ScheduleStatus ? null : "On Time"}</li> 
           </ul>
           <div>
-            <button type="button" className="btn btn-link">
+
+            {/* // Save Routes ToDo */}
+
+            {/* <button type="button" className="btn btn-link">
               More scheduled buses
             </button>
             <button type="button" className="btn btn-link" onClick={onSaveRoutesHandler}>
@@ -167,10 +166,12 @@ export default function App() {
                 <li>{route}</li>
               ))}
              
-            </div>
+            </div> */}
           </div>
         </div>
       )}
-    </Wrapper>
+      </div>
+      </div>
+    </div>
   );
 }
